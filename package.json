@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/VictorDQuintero/tinyapp/issues"
   },
-  "homepage": "https://github.com/VictorDQuintero/tinyapp#readme"
+  "homepage": "https://github.com/VictorDQuintero/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
 }

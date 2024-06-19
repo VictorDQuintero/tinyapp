@@ -7,8 +7,12 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
-app.get("/", (req, res) => {
+app.get("/", (req, res) => { // register a handler on the root path
   res.send("Hello!");
+});
+
+app.get("/urls.json", (req, res) => { // register a handler on /urls.json path
+  res.json(urlDatabase);
 });
 
 app.listen(PORT, () => {

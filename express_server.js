@@ -1,4 +1,15 @@
-function generateRandomString() {}
+function generateRandomString() {
+  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const length = 6;
+  let result = "";
+
+  for (let i=0; i<length;i++){    
+    result += charset[Math.floor(Math.random() * 62)];
+  }
+  
+  return result; 
+
+}
 
 const express = require("express");
 const app = express();
@@ -17,6 +28,9 @@ app.use(express.urlencoded({ extended: true })); // middleware which will transl
 
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
+  const templateVars = { id: generateRandomString(), longURL: req.body.longURL}; 
+  console.log(templateVars);
+  
   res.send("Ok"); // Respond with 'Ok' (we will replace this)
 });
 

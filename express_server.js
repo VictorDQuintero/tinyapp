@@ -59,18 +59,21 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
-
 app.post("/urls", (req, res) => {
- 
   const id = generateRandomString();
-  urlDatabase[id] = req.body.longURL;  
-  res.redirect(`urls/${id}`); 
+  urlDatabase[id] = req.body.longURL;
+  res.redirect(`urls/${id}`);
 });
 
 app.post("/urls/:id/delete", (req, res) => {
-  
   delete urlDatabase[req.params.id];
   res.redirect('/urls/');
+});
+
+app.post("/urls/:id/edit", (req, res) => {
+  const id = req.params.id;
+  urlDatabase[id] = req.body.newURL;
+  res.redirect("/urls/");
 
 });
 

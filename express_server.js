@@ -27,11 +27,12 @@ app.use(express.urlencoded({ extended: true })); // middleware which will transl
 // the data in the input field will be avaialbe to us in the req.body.longURL variable, which we can store in our urlDatabase object
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  const templateVars = { id: generateRandomString(), longURL: req.body.longURL}; 
-  console.log(templateVars);
+ 
+  const id = generateRandomString();
+  urlDatabase[id] = req.body.longURL;
+  console.log(urlDatabase);
   
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  res.redirect(`urls/${id}`); // Respond with 'Ok' (we will replace this)
 });
 
 app.get("/", (req, res) => { // register a handler on the root path

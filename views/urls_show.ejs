@@ -24,7 +24,7 @@
           <h6 class="card-title">Edit URL</h5>
         <form method="POST" action="/urls/<%= id %>/edit">
           <label for="newURL">New URL: </label>
-          <input type="text" id="newURL" name="newURL"/>
+          <input type="text" id="newURL" name="newURL" placeholder="<%= longURL %>"/>
           <button type="submit">Submit</button>
       </form>
     </div>

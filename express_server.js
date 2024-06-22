@@ -77,7 +77,7 @@ app.post("/urls/:id/edit", (req, res) => {
 
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
   res.cookie("username", req.body.username);
   res.redirect("/urls/");
 })

@@ -48,11 +48,17 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) =>{ // register a urls/new route and responds with rendering urls_new template
   const templateVars = { username: req.cookies["username"]};
+  if (!req.cookies["username"]) {
+    return res.status(401).send('You must be logged in to create URLs.');
+  }
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => { // register a "urls/:id route" :id means that the value in this part of the url will be available in req.params object
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], username: req.cookies["username"]};
+  if(!req.cookies["username"]){
+    return res.status(401).send('You must be logged in to edit URLs.');
+  }
   res.render("urls_show", templateVars);
 });
 
@@ -69,8 +75,7 @@ app.get("/u/:id", (req, res) => {
 
 app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
   const username = req.body.username;
- /*  res.cookie("username", username);
-  res.redirect("/urls"); */
+ 
   if (username) {
     res.cookie('username', username);
     res.redirect('/urls');
@@ -79,41 +84,39 @@ app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
   }
 });
 
-app.post("/urls", (req, res) => {
-   
-  // const username = req.cookies.username;
-  const id = generateRandomString();
-  urlDatabase[id] = req.body.longURL;
-  // if (!username) {
-  //   return res.status(401).send('You must be logged in to create URLs.');
-  // }
+// Implement the /logout endpoint so that it clears the username cookie and redirects the user back to the /urls page.
+app.post("/logout", (req, res) => { 
+  res.clearCookie("username");
+  res.redirect("/urls");
+});
 
-  // const id = generateRandomString();
-  // urlDatabase[id] = {
-  //   longURL: req.body.longURL,
-  //   userID: username
-  // };
- 
+app.post("/urls", (req, res) => {
+  const username = req.cookies.username;
+  if (!username) {
+    return res.status(401).send('You must be logged in to create URLs.');
+  }
+  const id = generateRandomString();
+  urlDatabase[id] = req.body.longURL; 
   res.redirect(`urls/${id}`);
 });
 
 app.post("/urls/:id/delete", (req, res) => {
 
-  /* const username = req.cookies.username;
+  const username = req.cookies.username;
   if (!username) {
     return res.status(401).send('You must be logged in to delete URLs.');
-  } */
+  }
   const id = req.params.id
   delete urlDatabase[id];
   res.redirect('/urls');
 });
 
 app.post("/urls/:id/edit", (req, res) => {
-/* 
+
   const username = req.cookies.username;
   if (!username) {
     return res.status(401).send('You must be logged in to edit URLs.');
-  } */
+  }
   const id = req.params.id;
   urlDatabase[id] = req.body.newURL;
   res.redirect("/urls");

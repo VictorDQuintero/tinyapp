@@ -10,12 +10,20 @@ const generateRandomString = function() {
   return result;
 
 };
+/* 
+function generateRandomString() {
+  return Math.random().toString(36).substring(2, 8);
+} */
 
 const express = require("express");
 const app = express();
+const cookieParser = require('cookie-parser');
 const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
+
+// app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
 
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
@@ -59,28 +67,58 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
+app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
+  const username = req.body.username;
+ /*  res.cookie("username", username);
+  res.redirect("/urls"); */
+  if (username) {
+    res.cookie('username', username);
+    res.redirect('/urls');
+  } else {
+    res.status(400).send('Username is required.');
+  }
+});
+
 app.post("/urls", (req, res) => {
+   
+  // const username = req.cookies.username;
   const id = generateRandomString();
   urlDatabase[id] = req.body.longURL;
+  // if (!username) {
+  //   return res.status(401).send('You must be logged in to create URLs.');
+  // }
+
+  // const id = generateRandomString();
+  // urlDatabase[id] = {
+  //   longURL: req.body.longURL,
+  //   userID: username
+  // };
+ 
   res.redirect(`urls/${id}`);
 });
 
 app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect('/urls/');
+
+  /* const username = req.cookies.username;
+  if (!username) {
+    return res.status(401).send('You must be logged in to delete URLs.');
+  } */
+  const id = req.params.id
+  delete urlDatabase[id];
+  res.redirect('/urls');
 });
 
 app.post("/urls/:id/edit", (req, res) => {
+/* 
+  const username = req.cookies.username;
+  if (!username) {
+    return res.status(401).send('You must be logged in to edit URLs.');
+  } */
   const id = req.params.id;
   urlDatabase[id] = req.body.newURL;
-  res.redirect("/urls/");
+  res.redirect("/urls");
 
 });
-
-app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
-  res.cookie("username", req.body.username);
-  res.redirect("/urls/");
-})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

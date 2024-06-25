@@ -20,17 +20,22 @@ const app = express();
 const cookieParser = require('cookie-parser');
 const PORT = 8080; // default port 8080
 
+// configuration
+
 app.set("view engine", "ejs");
+
+// middleware
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: true })); // middleware which will translate, or parse the body of the POST request
+// Express's built-in middleware function urlencoded will convert the request body from a Buffer into string that we can read. It will then add the data to the req(request) object under the key body.
+// the data in the input field will be avaialbe to us in the req.body.longURL variable, which we can store in our urlDatabase object
 
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
 };
 
-app.use(express.urlencoded({ extended: true })); // middleware which will translate, or parse the body of the POST request
-// Express's built-in middleware function urlencoded will convert the request body from a Buffer into string that we can read. It will then add the data to the req(request) object under the key body.
-// the data in the input field will be avaialbe to us in the req.body.longURL variable, which we can store in our urlDatabase object
+
 
 app.get("/", (req, res) => { // register a handler on the root path
   res.redirect("/urls");
@@ -73,9 +78,27 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
+app.get("/register", (req, res) => {
+  res.render("register");
+})
+
+/* app.post("/register", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  // did they NOT provide an email and password
+  if(!email || !password) {
+    res.status(400).send('');
+    return;
+  }
+
+  
+
+}); */
+
 app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
   const username = req.body.username;
- 
+ //TODO fix this if statement, make it if(!username)
   if (username) {
     res.cookie('username', username);
     res.redirect('/urls');
@@ -120,7 +143,6 @@ app.post("/urls/:id/edit", (req, res) => {
   const id = req.params.id;
   urlDatabase[id] = req.body.newURL;
   res.redirect("/urls");
-
 });
 
 app.listen(PORT, () => {

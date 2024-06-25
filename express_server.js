@@ -11,16 +11,16 @@ const generateRandomString = function(length) {
   return result;
 
 };
-/* 
+/*
 function generateRandomString() {
   return Math.random().toString(36).substring(2, 8);
 } */
 
-const findUserByEmail = function(email){
+const findUserByEmail = function(email) {
   for (const userId in users) {
     const user = users[userId];
-    if (user.email === email ) { // user trying to register with an email already in database
-      return user;      
+    if (user.email === email) { // user trying to register with an email already in database
+      return user;
     }
   }
 
@@ -89,7 +89,7 @@ app.get("/urls/new", (req, res) =>{ // register a urls/new route and responds wi
 app.get("/urls/:id", (req, res) => { // register a "urls/:id route" :id means that the value in this part of the url will be available in req.params object
   const userId = req.cookies["user_id"];
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user: users[userId]};
-  if(!userId){
+  if (!userId) {
     return res.status(401).send('You must be logged in to edit URLs.');
   }
   res.render("urls_show", templateVars);
@@ -106,9 +106,15 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
+// GET /register endpoint
 app.get("/register", (req, res) => {
   res.render("register");
-})
+});
+
+// GET /login endpoint
+app.get("/login", (req, res) => {
+  res.render("login");
+});
 
 app.post("/register", (req, res) => {
 
@@ -116,7 +122,7 @@ app.post("/register", (req, res) => {
   const password = req.body.password;
   
   // did they NOT provide an email and password
-  if(!email || !password) {
+  if (!email || !password) {
     res.status(400).send('Please provide an email and password');
     return;
   }
@@ -127,9 +133,9 @@ app.post("/register", (req, res) => {
     return res.status(400).send('That email is already in use');
   }
 
-  const user = {id: generateRandomString(3), email: req.body.email, password: req.body.password};  
+  const user = {id: generateRandomString(3), email: req.body.email, password: req.body.password};
   res.cookie("user_id", user.id);
-  users[user.id] = user;  
+  users[user.id] = user;
   res.redirect("/urls");
 
 });
@@ -138,34 +144,34 @@ app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
   
   const email = req.body.email;
  
- if (!email){
-  res.status(400).send('email is required.');
-  return;
- } 
- 
- for (const userId in users){ 
-  const user = users[userId];
-  if(email === user.email){    
-    res.cookie("user_id", user.id);    
-    res.redirect('/urls');
+  if (!email) {
+    res.status(400).send('email is required.');
+    return;
   }
-}
+ 
+  for (const userId in users) {
+    const user = users[userId];
+    if (email === user.email) {
+      res.cookie("user_id", user.id);
+      res.redirect('/urls');
+    }
+  }
 });
 
 // Implement the /logout endpoint so that it clears the username cookie and redirects the user back to the /urls page.
-app.post("/logout", (req, res) => { 
+app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
-app.post("/urls", (req, res) => { 
+app.post("/urls", (req, res) => {
   
   const userId = req.cookies.user_id;
   if (!userId) {
     return res.status(401).send('You must be logged in to create URLs.');
   }
   const id = generateRandomString(6);
-  urlDatabase[id] = req.body.longURL; 
+  urlDatabase[id] = req.body.longURL;
   res.redirect(`urls/${id}`);
 });
 
@@ -175,7 +181,7 @@ app.post("/urls/:id/delete", (req, res) => {
   if (!userId) {
     return res.status(401).send('You must be logged in to delete URLs.');
   }
-  const id = req.params.id
+  const id = req.params.id;
   delete urlDatabase[id];
   res.redirect('/urls');
 });

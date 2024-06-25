@@ -1,3 +1,5 @@
+// TODO, create findUserByEmail(email), returns user object if found, null if not found
+
 const generateRandomString = function(length) {
   const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let result = "";
@@ -13,6 +15,19 @@ const generateRandomString = function(length) {
 function generateRandomString() {
   return Math.random().toString(36).substring(2, 8);
 } */
+
+const findUserByEmail = function(email){
+  for (const userId in users) {
+    const user = users[userId];
+    if (user.email === email ) { // user trying to register with an email already in database
+      return user;      
+    }
+  }
+
+  return null;
+
+
+};
 
 const express = require("express");
 const app = express();
@@ -106,15 +121,8 @@ app.post("/register", (req, res) => {
     return;
   }
 
-  let foundUser = null;
-  // find user
-  for (const userId in users) {
-    const user = users[userId];
-    if (user.email === email ) { // user trying to register with an email already in database
-      foundUser = user;      
-    }
-  }
-
+  let foundUser = findUserByEmail(email);
+  
   if (foundUser) {
     return res.status(400).send('That email is already in use');
   }
@@ -129,7 +137,7 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
   
   const email = req.body.email;
- //TODO fix this if statement, make it if(!email)
+ 
  if (!email){
   res.status(400).send('email is required.');
   return;
@@ -173,7 +181,6 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/urls/:id/edit", (req, res) => {
-
   
   const userId = req.cookies.user_id;
   if (!userId) {

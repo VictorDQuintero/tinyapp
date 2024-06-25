@@ -56,22 +56,25 @@ app.get("/urls.json", (req, res) => { // register a handler on /urls.json path
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]]};
+  const userId = req.cookies["user_id"];
+  const templateVars = { urls: urlDatabase, user: users[userId]};
   res.render("urls_index", templateVars);
 });
 
 
 app.get("/urls/new", (req, res) =>{ // register a urls/new route and responds with rendering urls_new template
-  const templateVars = { user: users[req.cookies["user_id"]]};
-  if (!req.cookies["user_id"]) {
+  const userId = req.cookies["user_id"];
+  const templateVars = { user: users[userId]};
+  if (!userId) {
     return res.status(401).send('You must be logged in to create URLs.');
   }
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => { // register a "urls/:id route" :id means that the value in this part of the url will be available in req.params object
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user: users[req.cookies["user_id"]]};
-  if(!req.cookies["user_id"]){
+  const userId = req.cookies["user_id"];
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user: users[userId]};
+  if(!userId){
     return res.status(401).send('You must be logged in to edit URLs.');
   }
   res.render("urls_show", templateVars);
@@ -94,10 +97,6 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
 
-  // 1. To generate a random user ID
-  // 2. After adding user, set a user_id cookie containing the user's newly gen ID
-  // 3. Redirect the user to /urls page
-  // 4. Test that the users object is properly being appended to.
   const email = req.body.email;
   const password = req.body.password;
   
@@ -105,6 +104,19 @@ app.post("/register", (req, res) => {
   if(!email || !password) {
     res.status(400).send('Please provide an email and password');
     return;
+  }
+
+  let foundUser = null;
+  // find user
+  for (const userId in users) {
+    const user = users[userId];
+    if (user.email === email ) { // user trying to register with an email already in database
+      foundUser = user;      
+    }
+  }
+
+  if (foundUser) {
+    return res.status(400).send('That email is already in use');
   }
 
   const user = {id: generateRandomString(3), email: req.body.email, password: req.body.password};  
@@ -123,9 +135,10 @@ app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
   return;
  } 
  
- for (const user in users){ 
-  if(email === users[user].email){    
-    res.cookie("user_id", users[user].id);    
+ for (const userId in users){ 
+  const user = users[userId];
+  if(email === user.email){    
+    res.cookie("user_id", user.id);    
     res.redirect('/urls');
   }
 }
@@ -139,7 +152,8 @@ app.post("/logout", (req, res) => {
 
 app.post("/urls", (req, res) => { 
   
-  if (!req.cookies) {
+  const userId = req.cookies.user_id;
+  if (!userId) {
     return res.status(401).send('You must be logged in to create URLs.');
   }
   const id = generateRandomString(6);
@@ -149,8 +163,8 @@ app.post("/urls", (req, res) => {
 
 app.post("/urls/:id/delete", (req, res) => {
 
-  
-  if (!req.cookies) {
+  const userId = req.cookies.user_id;
+  if (!userId) {
     return res.status(401).send('You must be logged in to delete URLs.');
   }
   const id = req.params.id
@@ -161,7 +175,8 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/urls/:id/edit", (req, res) => {
 
   
-  if (!req.cookies) {
+  const userId = req.cookies.user_id;
+  if (!userId) {
     return res.status(401).send('You must be logged in to edit URLs.');
   }
   const id = req.params.id;

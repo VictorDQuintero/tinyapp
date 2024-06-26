@@ -143,19 +143,22 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
   
   const email = req.body.email;
+  const password = req.body.password;
  
-  if (!email) {
-    res.status(400).send('email is required.');
+  if (!email || !password) {
+    res.status(400).send('Please provide an email and password');
     return;
   }
- 
-  for (const userId in users) {
-    const user = users[userId];
-    if (email === user.email) {
-      res.cookie("user_id", user.id);
-      res.redirect('/urls');
-    }
+
+  let foundUser = findUserByEmail(email);
+  
+  if (!foundUser || password !== foundUser.password) {
+    return res.status(403).send('Authentication failed');
   }
+  
+  res.cookie("user_id", foundUser.id);
+  res.redirect('/urls');  
+  
 });
 
 // Implement the /logout endpoint so that it clears the username cookie and redirects the user back to the /urls page.

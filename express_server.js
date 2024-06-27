@@ -35,6 +35,7 @@ const urlsForUser = function(id){
 const express = require("express");
 const app = express();
 const cookieParser = require('cookie-parser');
+const bcrypt = require("bcryptjs");
 const PORT = 8080; // default port 8080
 
 // configuration
@@ -146,13 +147,16 @@ app.get("/login", (req, res) => {
 app.post("/register", (req, res) => { // Handler for POST form in /register
 
   const email = req.body.email;
-  const password = req.body.password;
+  const password = req.body.password;  
   
   // did they NOT provide an email and password
   if (!email || !password) {
     res.status(400).send('Please provide an email and password');
     return;
   }
+  
+  const salt = bcrypt.genSaltSync()
+  const hashedPassword = bcrypt.hashSync(password, salt);
 
   let foundUser = findUserByEmail(email, users); // if function returns truthy then the email provided is already in database
   
@@ -160,7 +164,7 @@ app.post("/register", (req, res) => { // Handler for POST form in /register
     return res.status(400).send('That email is already in use');
   }
 
-  const user = {id: generateRandomString(3), email: email, password: password}; // creates new user object
+  const user = {id: generateRandomString(3), email: email, password: hashedPassword}; // creates new user object
   res.cookie("user_id", user.id); // creates cookie
   users[user.id] = user; // adds new user object to users database
   res.redirect("/urls");
@@ -178,8 +182,8 @@ app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
   }
 
   let foundUser = findUserByEmail(email, users);
-  
-  if (!foundUser || password !== foundUser.password) { // if findUserByEmail returns null or password is not equal to the password in database reply with 403 status
+
+  if (!foundUser || !bcrypt.compareSync(password, foundUser.password)) { // if findUserByEmail returns null or the hash of the password provided doesn't match to the hash in the database
     res.status(403).send('Authentication failed');
     return;
   }

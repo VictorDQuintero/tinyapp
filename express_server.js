@@ -10,16 +10,6 @@ const generateRandomString = function(length) {
 
 };
 
-const findUserByEmail = function(email, users) {
-  for (const userId in users) {
-    const user = users[userId];
-    if (user.email === email) { // user trying to register with an email already in database
-      return user;
-    }
-  }
-  return null;
-};
-
 const urlsForUser = function(id){
 
   let urls = {};
@@ -34,9 +24,9 @@ const urlsForUser = function(id){
 
 const express = require("express");
 const app = express();
-// const cookieParser = require('cookie-parser');
 const bcrypt = require("bcryptjs");
 const cookieSession = require('cookie-session')
+const helper = require("./helper");
 const PORT = 8080; // default port 8080
 
 // configuration
@@ -60,17 +50,19 @@ const urlDatabase = {
   b2xVn2: {longURL: "http://www.lighthouselabs.ca", userID: "abc" },
   "9sm5xK": {longURL: "http://www.google.com", userID: "def"},
 };
-
+const salt = bcrypt.genSaltSync()
+const hashedPasswordABC = bcrypt.hashSync("1234", salt);
+const hashedPasswordDEF = bcrypt.hashSync("5678", salt);
 const users = {
   abc: {
     id: "abc",
     email: "a@a.com",
-    password: "1234",
+    password: hashedPasswordABC,
   },
   def: {
     id: "def",
     email: "b@b.com",
-    password: "5678",
+    password: hashedPasswordDEF,
   },
 };
 
@@ -168,7 +160,7 @@ app.post("/register", (req, res) => { // Handler for POST form in /register
   const salt = bcrypt.genSaltSync()
   const hashedPassword = bcrypt.hashSync(password, salt);
 
-  let foundUser = findUserByEmail(email, users); // if function returns truthy then the email provided is already in database
+  let foundUser = helper.findUserByEmail(email, users); // if function returns truthy then the email provided is already in database
   
   if (foundUser) {
     return res.status(400).send('That email is already in use');
@@ -191,7 +183,7 @@ app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
     return;
   }
 
-  let foundUser = findUserByEmail(email, users);
+  let foundUser = helper.findUserByEmail(email, users);
 
   if (!foundUser || !bcrypt.compareSync(password, foundUser.password)) { // if findUserByEmail returns null or the hash of the password provided doesn't match to the hash in the database
     res.status(403).send('Authentication failed');

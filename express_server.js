@@ -80,7 +80,7 @@ app.get("/urls/new", (req, res) =>{ // register a urls/new route and responds wi
 
 app.get("/urls/:id", (req, res) => { // register a "urls/:id" route 
   const userId = req.cookies["user_id"];
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user: users[userId]};
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, user: users[userId]};
   if (!userId) {
     return res.status(401).send('You must be logged in to edit URLs.');
   }
@@ -89,7 +89,7 @@ app.get("/urls/:id", (req, res) => { // register a "urls/:id" route
 
 app.get("/u/:id", (req, res) => { // redirects to the website that the generated key pairs with
   const id = req.params.id;
-  const longURL = urlDatabase[id];
+  const longURL = urlDatabase[id].longURL;
   if (!longURL) {    
     res.status(400).send('Shortened URL does not exist');
     return;
@@ -179,7 +179,8 @@ app.post("/urls", (req, res) => { // handler to generate new URLs
     return res.status(401).send('You must be logged in to create URLs.');
   }
   const id = generateRandomString(6);
-  urlDatabase[id] = req.body.longURL; // add long url to urlDatabase
+  urlDatabase[id].longURL = req.body.longURL; // add long url to urlDatabase
+  //will need to add user_id too
   res.redirect(`urls/${id}`);
 });
 
@@ -190,6 +191,7 @@ app.post("/urls/:id/delete", (req, res) => { // handler to delete Urls
     return res.status(401).send('You must be logged in to delete URLs.');
   }
   const id = req.params.id;
+  //maybe check if the user_id deleting is the same as the user_ID in database
   delete urlDatabase[id]; 
   res.redirect('/urls');
 });
@@ -201,7 +203,7 @@ app.post("/urls/:id/edit", (req, res) => { // handler to edit URLs
     return res.status(401).send('You must be logged in to edit URLs.');
   }
   const id = req.params.id;
-  urlDatabase[id] = req.body.newURL;
+  urlDatabase[id].longURL = req.body.newURL;
   res.redirect("/urls");
 });
 

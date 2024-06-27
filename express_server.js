@@ -34,8 +34,9 @@ const urlsForUser = function(id){
 
 const express = require("express");
 const app = express();
-const cookieParser = require('cookie-parser');
+// const cookieParser = require('cookie-parser');
 const bcrypt = require("bcryptjs");
+const cookieSession = require('cookie-session')
 const PORT = 8080; // default port 8080
 
 // configuration
@@ -43,8 +44,17 @@ const PORT = 8080; // default port 8080
 app.set("view engine", "ejs");
 
 // middleware
-app.use(cookieParser());
+// app.use(cookieParser());
 app.use(express.urlencoded({ extended: true })); 
+
+// Cookie Session
+app.use(cookieSession({
+  name: 'session',
+  keys: ["Cookie"],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
 
 const urlDatabase = {
   b2xVn2: {longURL: "http://www.lighthouselabs.ca", userID: "abc" },
@@ -76,7 +86,7 @@ app.get("/urls.json", (req, res) => { // register a handler on /urls.json path
 
 app.get("/urls", (req, res) => { // register a handler on /urls path
 
-  const userId = req.cookies["user_id"];
+  const userId = req.session.user_id;
   const userURL = urlsForUser(userId);
   const templateVars = { urls: userURL, user: users[userId]};
   if (!userId) {
@@ -87,7 +97,7 @@ app.get("/urls", (req, res) => { // register a handler on /urls path
 
 
 app.get("/urls/new", (req, res) =>{ // register a urls/new route and responds with rendering urls_new template
-  const userId = req.cookies["user_id"];
+  const userId = req.session.user_id;
   const templateVars = { user: users[userId]};
   if (!userId) {
     res.redirect("/login");
@@ -96,14 +106,14 @@ app.get("/urls/new", (req, res) =>{ // register a urls/new route and responds wi
 });
 
 app.get("/urls/:id", (req, res) => { // register a "urls/:id" route 
-  const userId = req.cookies["user_id"];
+  const userId = req.session.user_id;
   const urlId = req.params.id;
 
   if (!urlDatabase[urlId]){
     return res.status(400).send('Shortened URL does not exist');
   }
 
-  const templateVars = { id: id, longURL: urlDatabase[urlId].longURL, user: users[userId]};
+  const templateVars = { id: urlId, longURL: urlDatabase[urlId].longURL, user: users[userId]};
   if (!userId) {
     return res.status(401).send('You must be logged in to edit URLs.');
   } else if(userId !== urlDatabase[urlId].userID){
@@ -125,7 +135,7 @@ app.get("/u/:id", (req, res) => { // redirects to the website that the generated
 // GET /register endpoint
 app.get("/register", (req, res) => {
 
-  const userId = req.cookies["user_id"];
+  const userId = req.session.user_id;
   const templateVars = { user: users[userId]};
   if(userId){
     res.redirect("/urls");
@@ -136,7 +146,7 @@ app.get("/register", (req, res) => {
 // GET /login endpoint
 app.get("/login", (req, res) => {
 
-  const userId = req.cookies["user_id"];
+  const userId = req.session.user_id;
   const templateVars = { user: users[userId]};
   if(userId){
     res.redirect("/urls");
@@ -165,7 +175,7 @@ app.post("/register", (req, res) => { // Handler for POST form in /register
   }
 
   const user = {id: generateRandomString(3), email: email, password: hashedPassword}; // creates new user object
-  res.cookie("user_id", user.id); // creates cookie
+  req.session.user_id = user.id; // creates cookie
   users[user.id] = user; // adds new user object to users database
   res.redirect("/urls");
 
@@ -188,7 +198,7 @@ app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
     return;
   }
   
-  res.cookie("user_id", foundUser.id); // create cookie with the id of the logged in user as its value
+  req.session.user_id = foundUser.id; // create cookie with the id of the logged in user as its value
   res.redirect('/urls');  
   
 });
@@ -196,13 +206,13 @@ app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
 // Implement the /logout endpoint so that it clears the user_id cookie and redirects the user back to the /login page.
 app.post("/logout", (req, res) => {
 
-  res.clearCookie("user_id");
+  req.session = null; // clears cookie
   res.redirect("/login");
 });
 
 app.post("/urls", (req, res) => { // handler to generate new URLs
   
-  const userId = req.cookies.user_id; 
+  const userId = req.session.user_id; 
   if (!userId) { // if cookie doesn't exist
     return res.status(401).send('You must be logged in to create URLs.');
   }
@@ -213,7 +223,7 @@ app.post("/urls", (req, res) => { // handler to generate new URLs
 
 app.post("/urls/:id", (req, res) => { // handler to see URLs
   
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const id = req.params.id; 
   if (!userId) { // if cookie doesn't exist
     return res.status(401).send('You must be logged in to see your URLs.');
@@ -228,7 +238,7 @@ app.post("/urls/:id", (req, res) => { // handler to see URLs
 
 app.post("/urls/:id/delete", (req, res) => { // handler to delete Urls
 
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const id = req.params.id;
   if (!userId) {
     return res.status(401).send('You must be logged in to delete URLs.');
@@ -245,7 +255,7 @@ app.post("/urls/:id/delete", (req, res) => { // handler to delete Urls
 
 app.post("/urls/:id/edit", (req, res) => { // handler to edit URLs
   
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   if (!userId) {
     return res.status(401).send('You must be logged in to edit URLs.');
   }

@@ -96,13 +96,18 @@ app.get("/urls/new", (req, res) =>{ // register a urls/new route and responds wi
 
 app.get("/urls/:id", (req, res) => { // register a "urls/:id" route 
   const userId = req.cookies["user_id"];
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, user: users[userId]};
+  const id = req.params.id;
+
+  if (!urlDatabase[id]){
+    return res.status(400).send('Shortened URL does not exist');
+  }
+
+  const templateVars = { id: id, longURL: urlDatabase[id].longURL, user: users[userId]};
   if (!userId) {
     return res.status(401).send('You must be logged in to edit URLs.');
-  }
-  if(userId !== urlDatabase[req.params.id].userID){
+  } else if(userId !== urlDatabase[id].userID){
     return res.status(401).send('Only URL owners can edit their URLs')
-  }
+  } 
   res.render("urls_show", templateVars);
 });
 
@@ -208,11 +213,9 @@ app.post("/urls/:id", (req, res) => { // handler to see URLs
   const id = req.params.id; 
   if (!userId) { // if cookie doesn't exist
     return res.status(401).send('You must be logged in to see your URLs.');
-  }
-  if (!urlDatabase[id] && userId){
+  } else if (!urlDatabase[id] && userId){
     return  res.status(401).send('URL does not exist');
-  }
-  if (urlDatabase[id].userID !== userId){
+  } else if (urlDatabase[id].userID !== userId){
     return  res.status(401).send('This URL does not belong to you');
   }
 
@@ -222,10 +225,15 @@ app.post("/urls/:id", (req, res) => { // handler to see URLs
 app.post("/urls/:id/delete", (req, res) => { // handler to delete Urls
 
   const userId = req.cookies.user_id;
+  const id = req.params.id;
   if (!userId) {
     return res.status(401).send('You must be logged in to delete URLs.');
+  } else if (!urlDatabase[id] && userId){
+    return  res.status(401).send('URL does not exist');
+  } else if (urlDatabase[id].userID !== userId){
+    return  res.status(401).send('This URL does not belong to you');
   }
-  const id = req.params.id;
+  
   //maybe check if the user_id deleting is the same as the user_ID in database
   delete urlDatabase[id]; 
   res.redirect('/urls');

@@ -115,7 +115,9 @@ app.get("/register", (req, res) => {
 
 // GET /login endpoint
 app.get("/login", (req, res) => {
-  res.render("login");
+  const userId = req.cookies["user_id"];
+  const templateVars = { user: users[userId]};
+  res.render("login", templateVars);
 });
 
 app.post("/register", (req, res) => {
@@ -135,7 +137,7 @@ app.post("/register", (req, res) => {
     return res.status(400).send('That email is already in use');
   }
 
-  const user = {id: generateRandomString(3), email: req.body.email, password: req.body.password};
+  const user = {id: generateRandomString(3), email: email, password: password};
   res.cookie("user_id", user.id);
   users[user.id] = user;
   res.redirect("/urls");
@@ -146,6 +148,7 @@ app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
   
   const email = req.body.email;
   const password = req.body.password;
+  
  
   if (!email || !password) {
     res.status(400).send('Please provide an email and password');

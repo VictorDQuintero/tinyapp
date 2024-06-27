@@ -20,6 +20,18 @@ const findUserByEmail = function(email, users) {
   return null;
 };
 
+const urlsForUser = function(id){
+
+  let urls = {};
+  
+  for (const key in urlDatabase ){
+    if(id === urlDatabase[key].userID){
+      urls[key] = urlDatabase[key];
+    }
+  }
+  return urls;
+};
+
 const express = require("express");
 const app = express();
 const cookieParser = require('cookie-parser');
@@ -64,7 +76,11 @@ app.get("/urls.json", (req, res) => { // register a handler on /urls.json path
 app.get("/urls", (req, res) => { // register a handler on /urls path
 
   const userId = req.cookies["user_id"];
-  const templateVars = { urls: urlDatabase, user: users[userId]};
+  const userURL = urlsForUser(userId);
+  const templateVars = { urls: userURL, user: users[userId]};
+  if (!userId) {
+    return res.status(401).send('You must be logged in to view URLs.');
+  }
   res.render("urls_index", templateVars);
 });
 
@@ -83,6 +99,9 @@ app.get("/urls/:id", (req, res) => { // register a "urls/:id" route
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, user: users[userId]};
   if (!userId) {
     return res.status(401).send('You must be logged in to edit URLs.');
+  }
+  if(userId !== urlDatabase[req.params.id].userID){
+    return res.status(401).send('Only URL owners can edit their URLs')
   }
   res.render("urls_show", templateVars);
 });
@@ -179,8 +198,9 @@ app.post("/urls", (req, res) => { // handler to generate new URLs
     return res.status(401).send('You must be logged in to create URLs.');
   }
   const id = generateRandomString(6);
-  urlDatabase[id].longURL = req.body.longURL; // add long url to urlDatabase
-  //will need to add user_id too
+  console.log(urlDatabase);
+  urlDatabase[id] = {longURL: req.body.longURL, userID: userId}; 
+  console.log(urlDatabase);
   res.redirect(`urls/${id}`);
 });
 
@@ -204,6 +224,7 @@ app.post("/urls/:id/edit", (req, res) => { // handler to edit URLs
   }
   const id = req.params.id;
   urlDatabase[id].longURL = req.body.newURL;
+   
   res.redirect("/urls");
 });
 

@@ -197,10 +197,21 @@ app.post("/urls", (req, res) => { // handler to generate new URLs
   if (!userId) { // if cookie doesn't exist
     return res.status(401).send('You must be logged in to create URLs.');
   }
-  const id = generateRandomString(6);
-  console.log(urlDatabase);
-  urlDatabase[id] = {longURL: req.body.longURL, userID: userId}; 
-  console.log(urlDatabase);
+  const id = generateRandomString(6);  
+  urlDatabase[id] = {longURL: req.body.longURL, userID: userId};   
+  res.redirect(`urls/${id}`);
+});
+
+app.post("/urls/:id", (req, res) => { // handler to see URLs
+  
+  const userId = req.cookies.user_id;
+  const id = req.params.id; 
+  if (!userId) { // if cookie doesn't exist
+    return res.status(401).send('You must be logged in to see your URLs.');
+  }
+  if (!urlDatabase[id] && userId){
+    return  res.status(401).send('URL does not exist');
+  }
   res.redirect(`urls/${id}`);
 });
 

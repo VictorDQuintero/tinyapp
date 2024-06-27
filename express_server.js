@@ -108,7 +108,9 @@ app.get("/u/:id", (req, res) => {
 
 // GET /register endpoint
 app.get("/register", (req, res) => {
-  res.render("register");
+  const userId = req.cookies["user_id"];
+  const templateVars = { user: users[userId]};
+  res.render("register", templateVars);
 });
 
 // GET /login endpoint
@@ -161,10 +163,10 @@ app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
   
 });
 
-// Implement the /logout endpoint so that it clears the username cookie and redirects the user back to the /urls page.
+// Implement the /logout endpoint so that it clears the user_id cookie and redirects the user back to the /login page.
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 app.post("/urls", (req, res) => {

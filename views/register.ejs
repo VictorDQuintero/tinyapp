@@ -1,23 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
   <!-- Bootstrap CSS -->
-  <link
-  rel="stylesheet"
-  href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-  integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
-  crossorigin="anonymous"
-/>
-  <title>Register Form</title>
+    <link
+    rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+    crossorigin="anonymous"
+    />
+    <title>Register Form</title>
 </head>
 <body>
   <%- include('partials/_header') %>
   <main style="margin: 1em;">
     <h3>Create Account</h3>
   <form method="POST" action="/register">
-    <label>Email Address</label>
+    <label>Email address</label>
     <br>
     <input type="email" name="email" placeholder="Enter email">
     <br>
@@ -27,7 +30,7 @@
     <input type="password" name="password" placeholder="Password">
     <br>
     <br> 
-    <button type="button" class="btn btn-success">Register</button>
+    <button type="submit" class="btn btn-success">Register</button>
   </form>
 </main>
   <!-- Bootstrap JS -->

@@ -73,7 +73,7 @@ app.get("/urls/new", (req, res) =>{ // register a urls/new route and responds wi
   const userId = req.cookies["user_id"];
   const templateVars = { user: users[userId]};
   if (!userId) {
-    return res.status(401).send('You must be logged in to create URLs.');
+    res.redirect("/login");
   }
   res.render("urls_new", templateVars);
 });
@@ -90,26 +90,33 @@ app.get("/urls/:id", (req, res) => { // register a "urls/:id" route
 app.get("/u/:id", (req, res) => { // redirects to the website that the generated key pairs with
   const id = req.params.id;
   const longURL = urlDatabase[id];
-  if (!longURL) {
-    
-    res.status(400).send('Bad Request');
-    
+  if (!longURL) {    
+    res.status(400).send('Shortened URL does not exist');
+    return;
   }
   res.redirect(longURL);
 });
 
 // GET /register endpoint
 app.get("/register", (req, res) => {
+
   const userId = req.cookies["user_id"];
   const templateVars = { user: users[userId]};
-  res.render("register", templateVars);
+  if(userId){
+    res.redirect("/urls");
+  } else {
+  res.render("register", templateVars);}
 });
 
 // GET /login endpoint
 app.get("/login", (req, res) => {
+
   const userId = req.cookies["user_id"];
   const templateVars = { user: users[userId]};
-  res.render("login", templateVars);
+  if(userId){
+    res.redirect("/urls");
+  } else {
+  res.render("login", templateVars);}
 });
 
 app.post("/register", (req, res) => { // Handler for POST form in /register

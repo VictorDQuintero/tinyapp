@@ -212,6 +212,10 @@ app.post("/urls/:id", (req, res) => { // handler to see URLs
   if (!urlDatabase[id] && userId){
     return  res.status(401).send('URL does not exist');
   }
+  if (urlDatabase[id].userID !== userId){
+    return  res.status(401).send('This URL does not belong to you');
+  }
+
   res.redirect(`urls/${id}`);
 });
 

@@ -34,8 +34,8 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true })); 
 
 const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
+  b2xVn2: {longURL: "http://www.lighthouselabs.ca", userID: "abc" },
+  "9sm5xK": {longURL: "http://www.google.com", userID: "def"},
 };
 
 const users = {

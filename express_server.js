@@ -1,5 +1,3 @@
-// TODO, create findUserByEmail(email), returns user object if found, null if not found
-
 const generateRandomString = function(length) {
   const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let result = "";
@@ -11,22 +9,15 @@ const generateRandomString = function(length) {
   return result;
 
 };
-/*
-function generateRandomString() {
-  return Math.random().toString(36).substring(2, 8);
-} */
 
-const findUserByEmail = function(email) {
+const findUserByEmail = function(email, users) {
   for (const userId in users) {
     const user = users[userId];
     if (user.email === email) { // user trying to register with an email already in database
       return user;
     }
   }
-
   return null;
-
-
 };
 
 const express = require("express");
@@ -40,9 +31,7 @@ app.set("view engine", "ejs");
 
 // middleware
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: true })); // middleware which will translate, or parse the body of the POST request
-// Express's built-in middleware function urlencoded will convert the request body from a Buffer into string that we can read. It will then add the data to the req(request) object under the key body.
-// the data in the input field will be avaialbe to us in the req.body.longURL variable, which we can store in our urlDatabase object
+app.use(express.urlencoded({ extended: true })); 
 
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
@@ -63,14 +52,17 @@ const users = {
 };
 
 app.get("/", (req, res) => { // register a handler on the root path
+
   res.redirect("/urls");
 });
 
 app.get("/urls.json", (req, res) => { // register a handler on /urls.json path
+
   res.json(urlDatabase);
 });
 
-app.get("/urls", (req, res) => {
+app.get("/urls", (req, res) => { // register a handler on /urls path
+
   const userId = req.cookies["user_id"];
   const templateVars = { urls: urlDatabase, user: users[userId]};
   res.render("urls_index", templateVars);
@@ -86,7 +78,7 @@ app.get("/urls/new", (req, res) =>{ // register a urls/new route and responds wi
   res.render("urls_new", templateVars);
 });
 
-app.get("/urls/:id", (req, res) => { // register a "urls/:id route" :id means that the value in this part of the url will be available in req.params object
+app.get("/urls/:id", (req, res) => { // register a "urls/:id" route 
   const userId = req.cookies["user_id"];
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user: users[userId]};
   if (!userId) {
@@ -95,7 +87,7 @@ app.get("/urls/:id", (req, res) => { // register a "urls/:id route" :id means th
   res.render("urls_show", templateVars);
 });
 
-app.get("/u/:id", (req, res) => {
+app.get("/u/:id", (req, res) => { // redirects to the website that the generated key pairs with
   const id = req.params.id;
   const longURL = urlDatabase[id];
   if (!longURL) {
@@ -120,7 +112,7 @@ app.get("/login", (req, res) => {
   res.render("login", templateVars);
 });
 
-app.post("/register", (req, res) => {
+app.post("/register", (req, res) => { // Handler for POST form in /register
 
   const email = req.body.email;
   const password = req.body.password;
@@ -131,15 +123,15 @@ app.post("/register", (req, res) => {
     return;
   }
 
-  let foundUser = findUserByEmail(email);
+  let foundUser = findUserByEmail(email, users); // if function returns truthy then the email provided is already in database
   
   if (foundUser) {
     return res.status(400).send('That email is already in use');
   }
 
-  const user = {id: generateRandomString(3), email: email, password: password};
-  res.cookie("user_id", user.id);
-  users[user.id] = user;
+  const user = {id: generateRandomString(3), email: email, password: password}; // creates new user object
+  res.cookie("user_id", user.id); // creates cookie
+  users[user.id] = user; // adds new user object to users database
   res.redirect("/urls");
 
 });
@@ -147,54 +139,55 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
   
   const email = req.body.email;
-  const password = req.body.password;
-  
+  const password = req.body.password;  
  
   if (!email || !password) {
     res.status(400).send('Please provide an email and password');
     return;
   }
 
-  let foundUser = findUserByEmail(email);
+  let foundUser = findUserByEmail(email, users);
   
-  if (!foundUser || password !== foundUser.password) {
-    return res.status(403).send('Authentication failed');
+  if (!foundUser || password !== foundUser.password) { // if findUserByEmail returns null or password is not equal to the password in database reply with 403 status
+    res.status(403).send('Authentication failed');
+    return;
   }
   
-  res.cookie("user_id", foundUser.id);
+  res.cookie("user_id", foundUser.id); // create cookie with the id of the logged in user as its value
   res.redirect('/urls');  
   
 });
 
 // Implement the /logout endpoint so that it clears the user_id cookie and redirects the user back to the /login page.
 app.post("/logout", (req, res) => {
+
   res.clearCookie("user_id");
   res.redirect("/login");
 });
 
-app.post("/urls", (req, res) => {
+app.post("/urls", (req, res) => { // handler to generate new URLs
   
-  const userId = req.cookies.user_id;
-  if (!userId) {
+  const userId = req.cookies.user_id; 
+  if (!userId) { // if cookie doesn't exist
     return res.status(401).send('You must be logged in to create URLs.');
   }
   const id = generateRandomString(6);
-  urlDatabase[id] = req.body.longURL;
+  urlDatabase[id] = req.body.longURL; // add long url to urlDatabase
   res.redirect(`urls/${id}`);
 });
 
-app.post("/urls/:id/delete", (req, res) => {
+app.post("/urls/:id/delete", (req, res) => { // handler to delete Urls
 
   const userId = req.cookies.user_id;
   if (!userId) {
     return res.status(401).send('You must be logged in to delete URLs.');
   }
   const id = req.params.id;
-  delete urlDatabase[id];
+  delete urlDatabase[id]; 
   res.redirect('/urls');
 });
 
-app.post("/urls/:id/edit", (req, res) => {
+app.post("/urls/:id/edit", (req, res) => { // handler to edit URLs
   
   const userId = req.cookies.user_id;
   if (!userId) {

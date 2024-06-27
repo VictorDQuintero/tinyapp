@@ -24,9 +24,9 @@ const urlsForUser = function(id){
 
   let urls = {};
   
-  for (const key in urlDatabase ){
-    if(id === urlDatabase[key].userID){
-      urls[key] = urlDatabase[key];
+  for (const urlId in urlDatabase ){
+    if(id === urlDatabase[urlId].userID){
+      urls[urlId] = urlDatabase[urlId];
     }
   }
   return urls;
@@ -96,16 +96,16 @@ app.get("/urls/new", (req, res) =>{ // register a urls/new route and responds wi
 
 app.get("/urls/:id", (req, res) => { // register a "urls/:id" route 
   const userId = req.cookies["user_id"];
-  const id = req.params.id;
+  const urlId = req.params.id;
 
-  if (!urlDatabase[id]){
+  if (!urlDatabase[urlId]){
     return res.status(400).send('Shortened URL does not exist');
   }
 
-  const templateVars = { id: id, longURL: urlDatabase[id].longURL, user: users[userId]};
+  const templateVars = { id: id, longURL: urlDatabase[urlId].longURL, user: users[userId]};
   if (!userId) {
     return res.status(401).send('You must be logged in to edit URLs.');
-  } else if(userId !== urlDatabase[id].userID){
+  } else if(userId !== urlDatabase[urlId].userID){
     return res.status(401).send('Only URL owners can edit their URLs')
   } 
   res.render("urls_show", templateVars);

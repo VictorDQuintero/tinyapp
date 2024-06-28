@@ -16,12 +16,12 @@ const testUsers = {
 };
 
 describe('getUserByEmail', function() {
-  it('should return a user with valid email', function() {
+  it('should return a user object when provided with an email that exists in the database', function() {
     const user = getUserByEmail("user@example.com", testUsers);
     const expectedUserID = "userRandomID";
     assert.deepEqual(user, testUsers[expectedUserID]);
   });
-  it('should return null', function(){
+  it('should return null  when provided with an email that doesn\'t exist in the database', function(){
     const user = getUserByEmail("a@example.com", testUsers);
     assert.strictEqual(user, null);
   });

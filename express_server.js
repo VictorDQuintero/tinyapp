@@ -1,20 +1,8 @@
-const generateRandomString = function(length) {
-  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let result = "";
-
-  for (let i = 0; i < length; i++) {
-    result += charset[Math.floor(Math.random() * 62)];
-  }
-  
-  return result;
-
-};
-
 const express = require("express");
 const app = express();
 const bcrypt = require("bcryptjs");
 const cookieSession = require('cookie-session')
-const { getUserByEmail, urlsForUser } = require("./helpers");
+const { getUserByEmail, urlsForUser, generateRandomString } = require("./helpers");
 const PORT = 8080; // default port 8080
 
 // configuration

@@ -19,4 +19,19 @@ const urlsForUser = function(userId, database){
   return urls;
 };
 
-module.exports = { getUserByEmail, urlsForUser };
+const generateRandomString = function(length) {
+  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let result = "";
+
+  if (length <= 0 || typeof length !== "number") {
+    length = 3;
+  } 
+  
+  for (let i = 0; i < length; i++) {
+    result += charset[Math.floor(Math.random() * 62)];
+  }
+  return result;
+
+};
+
+module.exports = { getUserByEmail, urlsForUser, generateRandomString };

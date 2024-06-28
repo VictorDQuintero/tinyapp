@@ -1,3 +1,5 @@
+// TODO Deal with the question in line 65
+
 const express = require("express");
 const app = express();
 const bcrypt = require("bcryptjs");
@@ -44,6 +46,10 @@ const users = {
 
 app.get("/", (req, res) => { // register a handler on the root path
 
+  const userId = req.session.user_id;
+  if(!userId){
+    res.redirect("/login");
+  }
   res.redirect("/urls");
 });
 
@@ -58,7 +64,7 @@ app.get("/urls", (req, res) => { // register a handler on /urls path
   const userURL = urlsForUser(userId, urlDatabase);
   const templateVars = { urls: userURL, user: users[userId]};
   if (!userId) {
-    return res.status(401).send('You must be logged in to view URLs.');
+    return res.status(401).send('You must be logged in to view URLs.'); // what is best? this or reroute to /login like app.get("urls/new")
   }
   res.render("urls_index", templateVars);
 });

@@ -17,14 +17,12 @@ const testUsers = {
 
 describe('getUserByEmail', function() {
   it('should return a user with valid email', function() {
-    const user = get
-UserByEmail("user@example.com", testUsers);
+    const user = getUserByEmail("user@example.com", testUsers);
     const expectedUserID = "userRandomID";
     assert.deepEqual(user, testUsers[expectedUserID]);
   });
   it('should return null', function(){
-    const user = get
-UserByEmail("a@example.com", testUsers);
+    const user = getUserByEmail("a@example.com", testUsers);
     assert.strictEqual(user, null);
   });
 });

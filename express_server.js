@@ -10,23 +10,11 @@ const generateRandomString = function(length) {
 
 };
 
-const urlsForUser = function(id){
-
-  let urls = {};
-  
-  for (const urlId in urlDatabase ){
-    if(id === urlDatabase[urlId].userID){
-      urls[urlId] = urlDatabase[urlId];
-    }
-  }
-  return urls;
-};
-
 const express = require("express");
 const app = express();
 const bcrypt = require("bcryptjs");
 const cookieSession = require('cookie-session')
-const { getUserByEmail } = require("./helpers");
+const { getUserByEmail, urlsForUser } = require("./helpers");
 const PORT = 8080; // default port 8080
 
 // configuration

@@ -1,3 +1,38 @@
+<!-- <header>
+  <nav class="navbar navbar-expand-md navbar-dark bg-success">
+    <a class="navbar-brand" href="/urls">TinyApp</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav mr-auto">
+        <a class="nav-item nav-link" href="/urls">My URLs</a>
+        <a class="nav-item nav-link" href="/urls/new">Create New URL</a>       
+        <% if(!user){ %>
+          
+            <a class="nav-item nav-link" href="/login">Login</a>
+            <a class="nav-item nav-link" href="/register">Register</a>
+          
+        <% } else { %>
+          <label>Logged in as <%=user.email%></label>
+          <form method="POST" action="/logout">
+            <button type="submit" class="btn btn-dark">Logout</button>
+          </form>          
+        <% } %>
+                
+      </div>
+    </div>
+  </nav>
+</header> -->
+
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
     <a class="navbar-brand" href="/urls">TinyApp</a>
@@ -13,19 +48,20 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
+      <div class="navbar-nav mr-auto">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
-        <a class="nav-item nav-link" href="/urls/new">Create New URL</a>       
+        <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+      </div>
+      <div class="navbar-nav d-flex align-items-center">
         <% if(!user){ %>
-        <a class="nav-item nav-link" href="/login">Login</a>
-        <a class="nav-item nav-link" href="/register">Register</a>
+          <a class="nav-item nav-link" href="/login">Login</a>
+          <a class="nav-item nav-link" href="/register">Register</a>
         <% } else { %>
-          <label>Logged in as <%=user.email%></label>
+          <span class="text-light mr-3">Logged in as <%=user.email%></span>
           <form method="POST" action="/logout">
             <button type="submit" class="btn btn-dark">Logout</button>
-          </form>          
+          </form>
         <% } %>
-                
       </div>
     </div>
   </nav>

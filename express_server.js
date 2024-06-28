@@ -67,7 +67,7 @@ app.get("/urls.json", (req, res) => { // register a handler on /urls.json path
 app.get("/urls", (req, res) => { // register a handler on /urls path
 
   const userId = req.session.user_id;
-  const userURL = urlsForUser(userId);
+  const userURL = urlsForUser(userId, urlDatabase);
   const templateVars = { urls: userURL, user: users[userId]};
   if (!userId) {
     return res.status(401).send('You must be logged in to view URLs.');

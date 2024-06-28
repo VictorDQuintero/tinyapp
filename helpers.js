@@ -8,13 +8,12 @@ const getUserByEmail = function(email, database) {
   return null;
 };
 
-const urlsForUser = function(id){
+const urlsForUser = function(userId, database){
 
   let urls = {};
-  
-  for (const urlId in urlDatabase ){
-    if(id === urlDatabase[urlId].userID){
-      urls[urlId] = urlDatabase[urlId];
+  for (const urlId in database ){    
+    if(userId === database[urlId].userID){
+      urls[urlId] = database[urlId];
     }
   }
   return urls;

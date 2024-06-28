@@ -26,7 +26,7 @@ const express = require("express");
 const app = express();
 const bcrypt = require("bcryptjs");
 const cookieSession = require('cookie-session')
-const helper = require("./helpers");
+const { findUserByEmail } = require("./helpers");
 const PORT = 8080; // default port 8080
 
 // configuration
@@ -160,7 +160,7 @@ app.post("/register", (req, res) => { // Handler for POST form in /register
   const salt = bcrypt.genSaltSync()
   const hashedPassword = bcrypt.hashSync(password, salt);
 
-  let foundUser = helper.findUserByEmail(email, users); // if function returns truthy then the email provided is already in database
+  let foundUser = findUserByEmail(email, users); // if function returns truthy then the email provided is already in database
   
   if (foundUser) {
     return res.status(400).send('That email is already in use');
@@ -183,7 +183,7 @@ app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
     return;
   }
 
-  let foundUser = helper.findUserByEmail(email, users);
+  let foundUser = findUserByEmail(email, users);
 
   if (!foundUser || !bcrypt.compareSync(password, foundUser.password)) { // if findUserByEmail returns null or the hash of the password provided doesn't match to the hash in the database
     res.status(403).send('Authentication failed');

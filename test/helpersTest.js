@@ -1,6 +1,6 @@
 const { assert } = require('chai');
 
-const { findUserByEmail } = require('../helpers.js');
+const { getUserByEmail } = require('../helpers.js');
 
 const testUsers = {
   "userRandomID": {
@@ -15,14 +15,16 @@ const testUsers = {
   }
 };
 
-describe('findUserByEmail', function() {
+describe('getUserByEmail', function() {
   it('should return a user with valid email', function() {
-    const user = findUserByEmail("user@example.com", testUsers);
+    const user = get
+UserByEmail("user@example.com", testUsers);
     const expectedUserID = "userRandomID";
     assert.deepEqual(user, testUsers[expectedUserID]);
   });
   it('should return null', function(){
-    const user = findUserByEmail("a@example.com", testUsers);
+    const user = get
+UserByEmail("a@example.com", testUsers);
     assert.strictEqual(user, null);
   });
 });

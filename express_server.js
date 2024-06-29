@@ -102,7 +102,7 @@ app.get("/urls/:id", (req, res) => { // register a "urls/:id" route
     return res.status(400).send("Shortened URL does not exist");
   }
 
-  const templateVars = { id: urlId, longURL: urlDatabase[urlId].longURL, user: users[userId]};
+  const templateVars = { id: urlId, longURL: urlDatabase[urlId].longURL, user: users[userId], visits: urlDatabase[urlId].visits};
   if (!userId) {
     return res.status(401).send("You must be logged in to edit URLs.");
   } else if (userId !== urlDatabase[urlId].userID) {
@@ -120,7 +120,7 @@ app.get("/u/:id", (req, res) => { // redirects to the website that the generated
   }
 
   const longURL = urlDatabase[id].longURL;
-  
+  urlDatabase[id].visits += 1; // Increment the visit counter
   res.redirect(longURL);
 });
 
@@ -212,7 +212,8 @@ app.post("/urls", (req, res) => { // handler to generate new URLs
   }
   const id = generateRandomString(6);
   const longURL = req.body.longURL;
-  urlDatabase[id] = {longURL: longURL, userID: userId};
+  const visitCounter = 0;
+  urlDatabase[id] = {longURL: longURL, userID: userId, visits: visitCounter};
   res.redirect(`urls/${id}`);
 });
 

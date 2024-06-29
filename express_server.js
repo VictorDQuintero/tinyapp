@@ -1,4 +1,4 @@
-// TODO 
+// TODO
 // (Minor) a link to "Create a New Short Link" which makes a GET request to /urls/new from GET /urls
 
 // Deal with json path
@@ -9,8 +9,8 @@
 //check line 208
 
 const express = require("express");
-const methodOverride = require('method-override');
-const cookieSession = require('cookie-session')
+const methodOverride = require("method-override");
+const cookieSession = require("cookie-session");
 const app = express();
 const bcrypt = require("bcryptjs");
 
@@ -22,17 +22,17 @@ app.set("view engine", "ejs");
 
 // middleware
 
-app.use(express.urlencoded({ extended: true })); 
-app.use(methodOverride('_method'));
+app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride("_method"));
 
 // Cookie Session
 app.use(cookieSession({
-  name: 'session',
+  name: "session",
   keys: ["Cookie"],
 
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
-}))
+}));
 
 // Test databases
 const urlDatabase = {
@@ -62,7 +62,7 @@ const users = {
 app.get("/", (req, res) => { // register a handler on the root path
 
   const userId = req.session.user_id;
-  if(!userId){
+  if (!userId) {
     res.redirect("/login");
   }
   res.redirect("/urls");
@@ -79,7 +79,7 @@ app.get("/urls", (req, res) => { // register a handler on /urls path
   const userURL = urlsForUser(userId, urlDatabase);
   const templateVars = { urls: userURL, user: users[userId]};
   if (!userId) {
-    return res.status(401).send('You must be logged in to view URLs.'); // what is best? this or reroute to /login like app.get("urls/new")
+    return res.status(401).send("You must be logged in to view URLs."); 
   }
   res.render("urls_index", templateVars);
 });
@@ -94,27 +94,27 @@ app.get("/urls/new", (req, res) =>{ // register a urls/new route and responds wi
   res.render("urls_new", templateVars);
 });
 
-app.get("/urls/:id", (req, res) => { // register a "urls/:id" route 
+app.get("/urls/:id", (req, res) => { // register a "urls/:id" route
   const userId = req.session.user_id;
   const urlId = req.params.id;
 
-  if (!urlDatabase[urlId]){
-    return res.status(400).send('Shortened URL does not exist');
+  if (!urlDatabase[urlId]) {
+    return res.status(400).send("Shortened URL does not exist");
   }
 
   const templateVars = { id: urlId, longURL: urlDatabase[urlId].longURL, user: users[userId]};
   if (!userId) {
-    return res.status(401).send('You must be logged in to edit URLs.');
-  } else if(userId !== urlDatabase[urlId].userID){
-    return res.status(401).send('Only URL owners can edit their URLs')
-  } 
+    return res.status(401).send("You must be logged in to edit URLs.");
+  } else if (userId !== urlDatabase[urlId].userID) {
+    return res.status(401).send("Only URL owners can edit their URLs");
+  }
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:id", (req, res) => { // redirects to the website that the generated key pairs with
   const id = req.params.id;
   
-  if (!urlDatabase[id]) {    
+  if (!urlDatabase[id]) {
     res.status(400).send('Shortened URL does not exist');
     return;
   }
@@ -129,10 +129,11 @@ app.get("/register", (req, res) => {
 
   const userId = req.session.user_id;
   const templateVars = { user: users[userId]};
-  if(userId){
+  if (userId) {
     res.redirect("/urls");
   } else {
-  res.render("register", templateVars);}
+    res.render("register", templateVars);
+  }
 });
 
 // GET /login endpoint
@@ -140,16 +141,17 @@ app.get("/login", (req, res) => {
 
   const userId = req.session.user_id;
   const templateVars = { user: users[userId]};
-  if(userId){
+  if (userId) {
     res.redirect("/urls");
   } else {
-  res.render("login", templateVars);}
+    res.render("login", templateVars);
+  }
 });
 
 app.post("/register", (req, res) => { // Handler for POST form in /register
 
   const email = req.body.email;
-  const password = req.body.password;  
+  const password = req.body.password;
   
   // did they NOT provide an email and password
   if (!email || !password) {
@@ -163,7 +165,7 @@ app.post("/register", (req, res) => { // Handler for POST form in /register
     return res.status(400).send('That email is already in use');
   }
 
-  const salt = bcrypt.genSaltSync()
+  const salt = bcrypt.genSaltSync();
   const hashedPassword = bcrypt.hashSync(password, salt);
   const user = {id: generateRandomString(3), email: email, password: hashedPassword}; // creates new user object
   req.session.user_id = user.id; // creates cookie
@@ -175,11 +177,11 @@ app.post("/register", (req, res) => { // Handler for POST form in /register
 app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
   
   const email = req.body.email;
-  const password = req.body.password;  
+  const password = req.body.password;
  
   if (!email || !password) {
     res.status(400).send('Please provide an email and password');
-    return;    
+    return;
   }
 
   let foundUser = getUserByEmail(email, users);
@@ -190,7 +192,7 @@ app.post("/login", (req, res) => { //Add endpoint to handle a POST to /login
   }
   
   req.session.user_id = foundUser.id; // create cookie with the id of the logged in user as its value
-  res.redirect('/urls');  
+  res.redirect('/urls');
   
 });
 
@@ -203,14 +205,14 @@ app.post("/logout", (req, res) => {
 
 app.post("/urls", (req, res) => { // handler to generate new URLs
   
-  const userId = req.session.user_id; 
+  const userId = req.session.user_id;
   
   if (!userId) { // if cookie doesn't exist
     return res.status(401).send('You must be logged in to create URLs.');
   }
-  const id = generateRandomString(6);  
+  const id = generateRandomString(6);
   const longURL = req.body.longURL;
-  urlDatabase[id] = {longURL: longURL, userID: userId};   
+  urlDatabase[id] = {longURL: longURL, userID: userId};
   res.redirect(`urls/${id}`);
 });
 
@@ -220,13 +222,13 @@ app.delete('/urls/:id', (req, res) => { // handler to delete Urls
   const id = req.params.id;
   if (!userId) {
     return res.status(401).send('You must be logged in to delete URLs.');
-  } else if (!urlDatabase[id] && userId){
+  } else if (!urlDatabase[id] && userId) {
     return  res.status(401).send('URL does not exist');
-  } else if (urlDatabase[id].userID !== userId){
+  } else if (urlDatabase[id].userID !== userId) {
     return  res.status(401).send('This URL does not belong to you');
   }
   
-  delete urlDatabase[id]; 
+  delete urlDatabase[id];
   res.redirect('/urls');
 });
 
@@ -236,9 +238,9 @@ app.put("/urls/:id", (req, res) => { // handler to edit URLs
   const id = req.params.id;
   if (!userId) {
     return res.status(401).send('You must be logged in to delete URLs.');
-  } else if (!urlDatabase[id] && userId){
+  } else if (!urlDatabase[id] && userId) {
     return  res.status(401).send('URL does not exist');
-  } else if (urlDatabase[id].userID !== userId){
+  } else if (urlDatabase[id].userID !== userId) {
     return  res.status(401).send('This URL does not belong to you');
   }
   

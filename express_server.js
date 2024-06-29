@@ -198,21 +198,6 @@ app.post("/urls", (req, res) => { // handler to generate new URLs
   res.redirect(`urls/${id}`);
 });
 
-app.post("/urls/:id", (req, res) => { // handler to see URLs
-  
-  const userId = req.session.user_id;
-  const id = req.params.id; 
-  if (!userId) { // if cookie doesn't exist
-    return res.status(401).send('You must be logged in to see your URLs.');
-  } else if (!urlDatabase[id] && userId){
-    return  res.status(401).send('URL does not exist');
-  } else if (urlDatabase[id].userID !== userId){
-    return  res.status(401).send('This URL does not belong to you');
-  }
-
-  res.redirect(`urls/${id}`);
-});
-
 app.delete('/urls/:id', (req, res) => { // handler to delete Urls
   
   const userId = req.session.user_id;
@@ -230,13 +215,18 @@ app.delete('/urls/:id', (req, res) => { // handler to delete Urls
   res.redirect('/urls');
 });
 
-app.post("/urls/:id/edit", (req, res) => { // handler to edit URLs
+app.put("/urls/:id", (req, res) => { // handler to edit URLs
   
   const userId = req.session.user_id;
-  if (!userId) {
-    return res.status(401).send('You must be logged in to edit URLs.');
-  }
   const id = req.params.id;
+  if (!userId) {
+    return res.status(401).send('You must be logged in to delete URLs.');
+  } else if (!urlDatabase[id] && userId){
+    return  res.status(401).send('URL does not exist');
+  } else if (urlDatabase[id].userID !== userId){
+    return  res.status(401).send('This URL does not belong to you');
+  }
+  
   urlDatabase[id].longURL = req.body.newURL;
    
   res.redirect("/urls");

@@ -1,3 +1,6 @@
+// TODO
+// Comment functions purpose and any comments about their functioning
+
 const getUserByEmail = function(email, database) {
   for (const userId in database) {
     const user = database[userId];
@@ -26,7 +29,7 @@ const generateRandomString = function(length) {
   if (length <= 0 || typeof length !== "number") {
     length = 3;
   } 
-  
+
   for (let i = 0; i < length; i++) {
     result += charset[Math.floor(Math.random() * 62)];
   }

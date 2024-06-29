@@ -28,6 +28,7 @@
             <th scope="col">Edit</th>
             <th scope="col">Delete</th>
             <th scope="col">Visits</th>
+            <th scope="col">Unique Visitors</th>
           </tr>
         </thead>
         <tbody>
@@ -45,7 +46,8 @@
                     <button type="submit" class="btn btn-success">Delete</button>
                 </form>
             </td>   
-            <td><%= urls[id].visits %></td>         
+            <td><%= urls[id].visits %></td> 
+            <td><%= urls[id].uniqueVisitors.length %></td>         
             </tr>
           <% } %>
         </tbody>

@@ -22,7 +22,7 @@
         </p>
         <div class="card-body">
           <h6 class="card-title">Edit URL</h5>
-        <form method="POST" action="/urls/<%= id %>/edit">
+        <form method="POST" action="/urls/<%= id %>?_method=PUT">
           <label for="newURL">New URL: </label>
           <input type="text" id="newURL" name="newURL" placeholder="<%= longURL %>"/>
           <button type="submit" class="btn btn-success">Submit</button>

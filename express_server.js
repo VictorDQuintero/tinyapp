@@ -3,7 +3,7 @@
 
 // Deal with json path
 // Deal with password hashing for users in database
-// Deal with those two posts in lines 213, redundant? Check for other urls/:id
+
 // Organization
 // Appropriate key for cookie
 //check line 208
@@ -28,7 +28,7 @@ app.use(methodOverride("_method"));
 // Cookie Session
 app.use(cookieSession({
   name: "session",
-  keys: ["Cookie"],
+  keys: [ generateRandomString(10), generateRandomString(10)],
 
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
@@ -36,25 +36,25 @@ app.use(cookieSession({
 
 // Test databases
 const urlDatabase = {
-  // b2xVn2: {longURL: "http://www.lighthouselabs.ca", userID: "abc" },
-  // "9sm5xK": {longURL: "http://www.google.com", userID: "def"},
+  b2xVn2: {longURL: "http://www.lighthouselabs.ca", userID: "abc", visits: 0, uniqueVisitors: [], timeStamps: [] },
+  "9sm5xK": {longURL: "http://www.google.com", userID: "def", visits: 0, uniqueVisitors: [], timeStamps: [] },
 };
 
-// const salt = bcrypt.genSaltSync()
-// const hashedPasswordABC = bcrypt.hashSync("1234", salt);
-// const hashedPasswordDEF = bcrypt.hashSync("5678", salt);
+const salt = bcrypt.genSaltSync()
+const hashedPasswordABC = bcrypt.hashSync("1234", salt);
+const hashedPasswordDEF = bcrypt.hashSync("5678", salt);
 
 const users = {
-  // abc: {
-  //   id: "abc",
-  //   email: "a@a.com",
-  //   password: hashedPasswordABC,
-  // // },
-  // def: {
-  //   id: "def",
-  //   email: "b@b.com",
-  //   password: hashedPasswordDEF,
-  // },
+  abc: {
+    id: "abc",
+    email: "a@a.com",
+    password: hashedPasswordABC,
+  },
+  def: {
+    id: "def",
+    email: "b@b.com",
+    password: hashedPasswordDEF,
+  },
 };
 
 // End of test databases
@@ -94,6 +94,8 @@ app.get("/urls/new", (req, res) =>{ // register a urls/new route and responds wi
   res.render("urls_new", templateVars);
 });
 
+
+
 app.get("/urls/:id", (req, res) => { // register a "urls/:id" route
   const userId = req.session.user_id;
   const urlId = req.params.id;
@@ -102,7 +104,12 @@ app.get("/urls/:id", (req, res) => { // register a "urls/:id" route
     return res.status(400).send("Shortened URL does not exist");
   }
 
-  const templateVars = { id: urlId, longURL: urlDatabase[urlId].longURL, user: users[userId], visits: urlDatabase[urlId].visits};
+  if (! urlDatabase[urlId].uniqueVisitors){
+    urlDatabase[urlId].uniqueVisitors = [];
+  } 
+
+  const templateVars = { id: urlId, longURL: urlDatabase[urlId].longURL, user: users[userId], visits: urlDatabase[urlId].visits, uniqueVisitors: urlDatabase[urlId].uniqueVisitors.length};
+
   if (!userId) {
     return res.status(401).send("You must be logged in to edit URLs.");
   } else if (userId !== urlDatabase[urlId].userID) {
@@ -119,6 +126,20 @@ app.get("/u/:id", (req, res) => { // redirects to the website that the generated
     return;
   }
 
+  if (!req.session.visitor_id) {
+    req.session.visitor_id = generateRandomString(8);
+    
+  }
+
+  const visitorId = req.session.visitor_id;
+
+  if (!urlDatabase[id].uniqueVisitors.includes(visitorId)) {
+    urlDatabase[id].uniqueVisitors.push(visitorId);
+  }
+
+  /* if(!urlDatabase[id].visitTimestamps){
+  urlDatabase[id].visitTimestamps.push(Date().toISOString(), visitorId);} // push timestamp and visiotr_id
+console.log(urlDatabase[id]); */
   const longURL = urlDatabase[id].longURL;
   urlDatabase[id].visits += 1; // Increment the visit counter
   res.redirect(longURL);

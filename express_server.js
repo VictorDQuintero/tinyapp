@@ -1,9 +1,11 @@
 // TODO Deal with the question in line 65
 
 const express = require("express");
+const methodOverride = require('method-override');
+const cookieSession = require('cookie-session')
 const app = express();
 const bcrypt = require("bcryptjs");
-const cookieSession = require('cookie-session')
+
 const { getUserByEmail, urlsForUser, generateRandomString } = require("./helpers");
 const PORT = 8080; // default port 8080
 
@@ -12,8 +14,9 @@ const PORT = 8080; // default port 8080
 app.set("view engine", "ejs");
 
 // middleware
-// app.use(cookieParser());
+
 app.use(express.urlencoded({ extended: true })); 
+app.use(methodOverride('_method'));
 
 // Cookie Session
 app.use(cookieSession({
@@ -210,8 +213,8 @@ app.post("/urls/:id", (req, res) => { // handler to see URLs
   res.redirect(`urls/${id}`);
 });
 
-app.post("/urls/:id/delete", (req, res) => { // handler to delete Urls
-
+app.delete('/urls/:id', (req, res) => { // handler to delete Urls
+  
   const userId = req.session.user_id;
   const id = req.params.id;
   if (!userId) {

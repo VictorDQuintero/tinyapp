@@ -233,5 +233,5 @@ app.put("/urls/:id", (req, res) => { // handler to edit URLs
 });
 
 app.listen(PORT, () => {
-  console.log(`TinyURL app listening on port ${PORT}!`);
+  console.log(`TinyApp listening on port ${PORT}!`);
 });

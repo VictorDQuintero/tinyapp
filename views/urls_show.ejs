@@ -16,7 +16,7 @@
     <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
-        <h5 class="card-title">TinyURL for: <%= longURL %></h5>
+        <h5 class="card-title">TinyURL for: <%=longURL %></h5>
         <p class="card-text">
           Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
         </p>
@@ -27,6 +27,9 @@
           <p class="card-text">
             Unique visitors: <%= uniqueVisitors %>
           </p>
+          <p class="card-text">
+            Visit Timestamp - Visitor ID:</p>
+          <p><%- visitTimestamps.join('<br>') %></p>
     </div>
       </div>
       <div class="card-footer text-muted">

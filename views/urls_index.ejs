@@ -29,6 +29,7 @@
             <th scope="col">Delete</th>
             <th scope="col">Visits</th>
             <th scope="col">Unique Visitors</th>
+            <th scope="col">Visit Time Stamp - Visitor ID</th>
           </tr>
         </thead>
         <tbody>
@@ -47,7 +48,8 @@
                 </form>
             </td>   
             <td><%= urls[id].visits %></td> 
-            <td><%= urls[id].uniqueVisitors.length %></td>         
+            <td><%= urls[id].uniqueVisitors.length %></td>
+            <td><%- urls[id].visitTimeStamps.join('<br>') %></td>         
             </tr>
           <% } %>
         </tbody>

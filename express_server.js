@@ -36,24 +36,24 @@ app.use(cookieSession({
 
 // Test databases
 const urlDatabase = {
-  b2xVn2: {longURL: "http://www.lighthouselabs.ca", userID: "abc", visits: 0, uniqueVisitors: [], timeStamps: [] },
-  "9sm5xK": {longURL: "http://www.google.com", userID: "def", visits: 0, uniqueVisitors: [], timeStamps: [] },
+  //  b2xVn2: {longURL: "http://www.lighthouselabs.ca", userID: "abc", visits: 0, uniqueVisitors: [], visitTimestamps: [] },
+  //  "9sm5xK": {longURL: "http://www.google.com", userID: "def", visits: 0, uniqueVisitors: [], visitTimestamps: [] },
 };
 
-const salt = bcrypt.genSaltSync()
-const hashedPasswordABC = bcrypt.hashSync("1234", salt);
-const hashedPasswordDEF = bcrypt.hashSync("5678", salt);
+// const salt = bcrypt.genSaltSync()
+// const hashedPasswordABC = bcrypt.hashSync("1234", salt);
+// const hashedPasswordDEF = bcrypt.hashSync("5678", salt);
 
 const users = {
   abc: {
-    id: "abc",
-    email: "a@a.com",
-    password: hashedPasswordABC,
+    // id: "abc",
+    // email: "a@a.com",
+    // password: hashedPasswordABC,
   },
   def: {
-    id: "def",
-    email: "b@b.com",
-    password: hashedPasswordDEF,
+    // id: "def",
+    // email: "b@b.com",
+    // password: hashedPasswordDEF,
   },
 };
 
@@ -94,11 +94,10 @@ app.get("/urls/new", (req, res) =>{ // register a urls/new route and responds wi
   res.render("urls_new", templateVars);
 });
 
-
-
 app.get("/urls/:id", (req, res) => { // register a "urls/:id" route
   const userId = req.session.user_id;
   const urlId = req.params.id;
+  console.log(urlDatabase[urlId]);
 
   if (!urlDatabase[urlId]) {
     return res.status(400).send("Shortened URL does not exist");
@@ -108,7 +107,7 @@ app.get("/urls/:id", (req, res) => { // register a "urls/:id" route
     urlDatabase[urlId].uniqueVisitors = [];
   } 
 
-  const templateVars = { id: urlId, longURL: urlDatabase[urlId].longURL, user: users[userId], visits: urlDatabase[urlId].visits, uniqueVisitors: urlDatabase[urlId].uniqueVisitors.length};
+  const templateVars = { id: urlId, longURL: urlDatabase[urlId].longURL, user: users[userId], visits: urlDatabase[urlId].visits, uniqueVisitors: urlDatabase[urlId].uniqueVisitors.length, visitTimestamps: urlDatabase[urlId].visitTimestamps};
 
   if (!userId) {
     return res.status(401).send("You must be logged in to edit URLs.");
@@ -136,15 +135,17 @@ app.get("/u/:id", (req, res) => { // redirects to the website that the generated
   if (!urlDatabase[id].uniqueVisitors.includes(visitorId)) {
     urlDatabase[id].uniqueVisitors.push(visitorId);
   }
+  
 
-  /* if(!urlDatabase[id].visitTimestamps){
-  urlDatabase[id].visitTimestamps.push(Date().toISOString(), visitorId);} // push timestamp and visiotr_id
-console.log(urlDatabase[id]); */
+  urlDatabase[id].visitTimestamps.push(`${new Date().toLocaleString()} - ${visitorId}`);
+   // push timestamp and visitor_id
+
+  console.log(urlDatabase[id]); 
   const longURL = urlDatabase[id].longURL;
   urlDatabase[id].visits += 1; // Increment the visit counter
   res.redirect(longURL);
 });
-
+ 
 // GET /register endpoint
 app.get("/register", (req, res) => {
 
@@ -233,8 +234,8 @@ app.post("/urls", (req, res) => { // handler to generate new URLs
   }
   const id = generateRandomString(6);
   const longURL = req.body.longURL;
-  const visitCounter = 0;
-  urlDatabase[id] = {longURL: longURL, userID: userId, visits: visitCounter};
+  const visitCounter = 0;  
+  urlDatabase[id] = {longURL: longURL, userID: userId, visits: visitCounter, uniqueVisitors: [], visitTimestamps: [] };
   res.redirect(`urls/${id}`);
 });
 
